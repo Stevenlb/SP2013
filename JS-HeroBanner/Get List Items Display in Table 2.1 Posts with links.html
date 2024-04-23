@@ -1,0 +1,121 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.SPServices/2014.02/jquery.SPServices-2014.02.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.SPServices/2014.02/jquery.SPServices-2014.02.min.js" type="text/javascript"></script>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js" type="text/javascript"></script>
+
+
+ <script type="text/javascript">
+ $(document).ready(function () { executeCaml(); });
+ var InnrHtmlgrp = "";
+ function executeCaml() {
+ var soapEnv =
+ "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/'>" +
+ "<soapenv:Body><GetListItems xmlns='http://schemas.microsoft.com/sharepoint/soap/'>" +
+ "<listName>Posts</listName>" +
+ "<View><Query><Where><And><Leq><FieldRef Name='PublishedDate' /><Value IncludeTimeValue='TRUE' Type='DateTime'>2024-04-22T16:00:07Z</Value></Leq><Or><Contains><FieldRef Name='News_x0020_Text' /><Value Type='Text'>HCL Industry News</Value></Contains><And><Leq><FieldRef Name='PublishedDate' /><Value IncludeTimeValue='TRUE' Type='DateTime'>2024-04-22T16:00:08Z</Value></Leq><Contains><FieldRef Name='News_x0020_Text' /><Value Type='Text'>MedPro News</Value></Contains></And></Or></And></Where><OrderBy><FieldRef Name='Featured' Ascending='False' /><FieldRef Name='PublishedDate' Ascending='False' /></OrderBy></Query><ViewFields><FieldRef Name='ID' /><FieldRef Name='Title' /><FieldRef Name='Body' /><FieldRef Name='Permalink' /></ViewFields><QueryOptions /></View>" +
+ "</GetListItems>" +
+ "</soapenv:Body></soapenv:Envelope>";
+ $.ajax({
+ url : _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/_vti_bin/lists.asmx",
+ contentType : "text/xml; charset=\"utf-8\"",
+ method: "POST",
+ dataType: "xml",
+ data: soapEnv,
+ complete: processResult,
+ //success : processResult,
+ error: onError
+ });
+ }
+ function processResult(xData, status) {
+ var itemTitle1 = "";
+ var itemTitle2 = "";
+ var itemTitle3 = "";
+ var itemTitle4 = "";
+ var itemTitle5 = "";
+ var itemUrl1 = "";
+ var itemUrl2 = "";
+ var itemUrl3 = "";
+ var itemUrl4 = "";
+ var itemUrl5 = "";
+ $(xData.responseXML).find("z\\:row").slice(0, 1).each(function () {
+	var guid = $(this).attr("ows_UniqueId");
+	var title = $(this).attr("ows_Title");
+	var dueDate = $(this).attr("ows_DueDate");
+	itemTitle1 += title
+	itemUrl1 += _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/Lists/Posts1/Post.aspx?List=c93fb0f8-b314-4ab3-8864-03f80279d010&ID=" + $(this).attr("ows_ID") ;
+
+ });
+ $(xData.responseXML).find("z\\:row").slice(1, 2).each(function () {
+	var guid = $(this).attr("ows_UniqueId");
+	var title = $(this).attr("ows_Title");
+	var dueDate = $(this).attr("ows_DueDate");
+	itemTitle2 += title
+	itemUrl2 += _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/Lists/Posts1/Post.aspx?List=c93fb0f8-b314-4ab3-8864-03f80279d010&ID=" + $(this).attr("ows_ID") ;
+ });
+ $(xData.responseXML).find("z\\:row").slice(2, 3).each(function () {
+	var guid = $(this).attr("ows_UniqueId");
+	var title = $(this).attr("ows_Title");
+	var dueDate = $(this).attr("ows_DueDate");
+	itemTitle3 += title
+	itemUrl3 += _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/Lists/Posts1/Post.aspx?List=c93fb0f8-b314-4ab3-8864-03f80279d010&ID=" + $(this).attr("ows_ID") ;
+ });
+ $(xData.responseXML).find("z\\:row").slice(3, 4).each(function () {
+	var guid = $(this).attr("ows_UniqueId");
+	var title = $(this).attr("ows_Title");
+	var dueDate = $(this).attr("ows_DueDate");
+	itemTitle4 += title
+	itemUrl4 += _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/Lists/Posts1/Post.aspx?List=c93fb0f8-b314-4ab3-8864-03f80279d010&ID=" + $(this).attr("ows_ID") ;
+ });
+ $(xData.responseXML).find("z\\:row").slice(4, 5).each(function () {
+	var guid = $(this).attr("ows_UniqueId");
+	var title = $(this).attr("ows_Title");
+	var dueDate = $(this).attr("ows_DueDate");
+	itemTitle5 += title
+	itemUrl5 += _spPageContextInfo.webAbsoluteUrl + "/sites/newnewscenter/Lists/Posts1/Post.aspx?List=c93fb0f8-b314-4ab3-8864-03f80279d010&ID=" + $(this).attr("ows_ID") ;
+ });
+ $('#Item1').append(itemTitle1);
+ $('#Item2').append(itemTitle2);
+ $('#Item3').append(itemTitle3);
+ $('#Item4').append(itemTitle4);
+ $('#Item5').append(itemTitle5);
+ document.getElementById("URL1").href=itemUrl1; 
+ document.getElementById("URL2").href=itemUrl2; 
+ document.getElementById("URL3").href=itemUrl3; 
+ document.getElementById("URL4").href=itemUrl4; 
+ document.getElementById("URL5").href=itemUrl5; 
+ }
+ function onError(data, errorStatus, errorMessage) {
+ alert("error");
+ alert(errorMessage);
+ }
+ </script>
+ 
+ 
+ 
+ 
+
+<table class=MsoTableGrid cellspacing=20 cellpadding=20 width=0 style="width:100%;border-collapse:collapse;">
+ <tr style="height:150px">
+ <td id="Cell1" class=AEHero width=60% rowspan=2 valign=top style="background-image:url('https://thehub.medpro.com/SiteAssets/AEHeroTileImages/HUB%20Background%201.jpg');padding-top:4%; padding-left: 2%;padding-right: 2%;padding-bottom: 2%; height:300px;); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#80202020,endColorstr=#80202020);">
+  <a href='' ID="URL1"><p class=MsoNormal><span id="Item1" class="AETItext" style="font-size: 32px !important;font-family: NunitoSans,Helvetica,Arial,sans-serif;box-sizing: border-box;background: none !important;color: white;font-weight: bold !important;"></span></p></a>
+  </td>
+ <td id="Cell2" class=AEHero width=20% valign=top style="background-image:url('https://thehub.medpro.com/SiteAssets/AEHeroTileImages/HUB%20Background%202.jpg');padding-top: 2% ;padding-left: 2% ;padding-right: 2% ;padding-bottom: 2%;height:150px;"></a>
+  <a href='' ID="URL2"><p class=MsoNormal><span id="Item2" class="AETItext" style="font-size: 17px;font-family: NunitoSans,Helvetica,Arial,sans-serif;box-sizing: border-box;background: none !important;color: white;"></span></p>
+  </td>
+ <td id="Cell3" class=AEHero width=20% valign=top style="background-image:url('https://thehub.medpro.com/SiteAssets/AEHeroTileImages/HUB%20Background%203.jpg');padding-top: 2% ;padding-left: 2% ;padding-right: 2% ;padding-bottom: 2%;height:150px;"></a>
+  <a href='' ID="URL3"><p class=MsoNormal><span id="Item3" class="AETItext" style="font-size: 17px;font-family: NunitoSans,Helvetica,Arial,sans-serif;box-sizing: border-box;background: none !important;color: white;"></span></p>
+  </td>
+ </tr>
+ <tr style="height:106.1pt">
+ <td id="Cell4" class=AEHero width=20% width=20% valign=top style="background-image:url('https://thehub.medpro.com/SiteAssets/AEHeroTileImages/HUB%20Background%204.jpg');padding-top: 2% ;padding-left: 2% ;padding-right: 2% ;padding-bottom: 2%;height:150px;"></a>
+  <a href='' ID="URL4"><p class=MsoNormal><span id="Item4" class="AETItext" style="font-size: 17px;font-family: NunitoSans,Helvetica,Arial,sans-serif;box-sizing: border-box;background: none !important;color: white;"></span></p>
+  </td>
+  <td id="Cell5" backgroundImage=url(""); class=AEHero width=20% width=20% valign=top style="background-image:url('https://thehub.medpro.com/SiteAssets/AEHeroTileImages/HUB%20Background%205.jpg');padding-top: 2% ;padding-left: 2% ;padding-right: 2% ;padding-bottom: 2%;height:150px;"></a>
+  <a href='' ID="URL5"><p class=MsoNormal><span id="Item5" style="font-size: 17px;font-family: NunitoSans,Helvetica,Arial,sans-serif;box-sizing: border-box;background: none !important;color: white;"></span></p>
+  </td>
+ </tr>
+</table>
+
+
+
+<style>.AETile1 .AETItext{font-weight:bold !important;font-size:32px !important; padding:60px !important} .AEHero {transition:opacity 0.2s ease-in-out} .AEHero:hover {opacity:0.9} .AETIeditbutton:hover span {visibility:visible !important;cursor:pointer} .AETIbullet:before {content:'\f111';font-family:'FontAwesome';float:left;margin-left:-2em;font-size:8px;line-height:18px} .AETIbullet {list-style:none;margin-left:-22px;margin-bottom:4px} .AETItexttile H1 {font:22px Segoe UI;line-height:26px;color:inherit;font-weight:bold} .AETItexttile H2 {line-height:24px;color:inherit} .AETItexttile H3 {color:inherit} .AEWPtitle {background-color:#ddd;color:#555;font-size:14px} .AEoverlay {position:absolute;bottom:0px;left:0;right:0;background-color:#555;opacity:0.8;overflow:hidden;width:100%;height:0px;transition: .4s ease;} .dark {font-size:14px !important;margin:-5px 0 7px -9px !important;background-color:#666;color:white;padding:4px 4px 4px 8px !important} @media screen and (max-width:800px) {.AETI {margin:0 !important}}</style>
