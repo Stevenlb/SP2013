@@ -1,0 +1,204 @@
+<!-- Include jQuery library -->
+    <script src="/SiteAssets/jquery-3.6.0.min.js"></script>
+
+	<!-- Main styles for the hero component -->
+    <style>
+	
+	 /* Smooth transition for hover effect */
+        .Hero {
+            transition: opacity 0.2s ease-in-out;
+        }
+        .Hero:hover {
+            opacity: 0.9;
+        }
+		
+	/* Special styling for the first tile */
+        .Tile1 .Newstext {
+            font-weight: bold !important;
+            font-size: 32px !important;
+            padding: 60px !important;
+        }
+ 
+    /* Hover effect for edit button */
+	   .Newseditbutton:hover span {
+            visibility: visible !important;
+            cursor: pointer;
+        }
+
+	/* Responsive design for smaller screens */
+        @media screen and (max-width: 800px) {
+            .News {
+                margin: 0 !important;
+            }
+        }
+
+	/* Hide subtext by default */
+        .subtext {
+            display: none;
+        }
+        .subtext div:nth-child(1) {
+            display: none;
+        }
+    </style>
+
+<!-- Hide subtext for tiles 2-5 -->
+    <style>
+	.subtext1 {display:none;}
+	.subtext2 {display:none;}
+	.subtext3 {display:none;}
+	.subtext4 {display:none;}
+	</style>
+
+
+    <script>
+	
+		// This bit tells the page to run the searchSharePoint function when the page loads. Basically, it kicks the whole thing off.
+        $(document).ready(function() {
+            searchSharePoint();
+        });
+
+		// This is the actual function that performs the search. 
+        function searchSharePoint(query) {
+			
+			// Set the content source to News Result Source located here: https://subdomain.tenantnamehere.com/_layouts/15/ManageResultSources.aspx?level=site . Get the GUID from the link to the source. This should ALWAYS match the News feed.
+			var contentSource = "10f76f46-07ff-45c7-95db-e875b794f317"
+			
+			// Set the query for the actual search.
+            var apiUrl = "https://subdomain.tenantnamehere.com/_api/search/query?sourceid='" + contentSource + "'&rowlimit='5'&selectproperties='Title, BodyOWSMTXT, RefinableDate01, LikesCount, Path, RefinableString00, RefinableString03, RefinableString10'";
+
+			// Make an AJAX call to the SharePoint API. This is where the actual search takes place and the results are retrieved.
+            $.ajax({
+                url: apiUrl,
+                method: "GET",
+                headers: { "Accept": "application/json; odata=verbose" },
+                success: displayResults,
+                error: function(error) {
+                    console.error("Error fetching search results:", error);
+                    $("#errorMessage").text("An error occurred while fetching search results.");
+                }
+            });
+        }
+
+		/**
+			* Here is where we:
+			* 	Parse the results fetched in searchSharePoint() (@param {Object} data - The data returned from the SharePoint search API)
+			* 	Display the search results in the hero component
+		*/
+        function displayResults(data) {
+			
+			// The results will be known as "results" from here out, we will simplify that by makeing each item a variable later.
+            var results = data.d.query.PrimaryQueryResult.RelevantResults.Table.Rows.results;
+
+			// Process up to 5 results. We only request 5, but we limit it to 5 as well. Reduncancy can be repetitive sometimes. It can be the same, too. (That's a joke.)
+            results.slice(0, 5).forEach((result, index) => {
+				
+				// Setting the variable for title, url, and subline. We'll also massage the subline to strip HTML and limit it to 220 characters. This limit can be updated by changing the second number in contentLine.slice.
+				
+				// This is the title limit
+				var titleLimit = 150 // update number to change
+				
+				// This is the limit for the subline text in the first tile.
+				var sublineLimit = 220 // update number to change
+                
+				// Logic to set limits on title and subline.
+				var cells = result.Cells.results;
+                var titleFull = getValueFromResults(cells, "Title");
+                var url = getValueFromResults(cells, "Path");
+                var contentHtml = getValueFromResults(cells, "BodyOWSMTXT");
+                var contentLine = cleanContent(contentHtml);
+                var title = titleFull.slice(0, titleLimit);
+                var subline = contentLine.slice(0, sublineLimit) + "... <br>Click to read more.";
+
+				// Update the HTML for each headline and subline. The Sublines for tiles 2-5 are hidden using a style above.
+                $(`#headline${index + 1}`).html(`
+                    <a href="${url}" class="Newstext" style="font-size: 17px; font-weight: 100; position: absolute; left: 0; right: 0; top: 0; padding: 15px; color: white;text-decoration:none">
+                        ${title}<br>
+                        <div class="subtext${index}" style="font-size: 12px;text-decoration:none;font-weight:normal"><br>${subline}</div>
+						<br>
+<!--					<div class="Read${index}" style="font-size: 12px;font-weight:100;position:absolute;right:0;bottom:0;padding:15px;color:white"><br>Click to read more</div> -->
+                    </a>
+                `);
+            });
+
+            // Clear remaining headlines. We shouldn't have any more, but you know, redundancy and all...
+            for (let i = results.length; i < 5; i++) {
+                $(`#headline${i + 1}`).text("");
+            }
+        }
+
+		/**
+			* Retrieve a specific value from the search results:
+				* @param {Array} cells - The array of cells from the search results
+				* @param {string} key - The key of the value to retrieve
+				* @returns {string} The value associated with the key, or an empty string if not found
+		*/
+        function getValueFromResults(cells, key) {
+            return cells.find(cell => cell.Key === key)?.Value || "";
+        }
+
+		/**
+			* Clean the HTML content by removing unwanted tags and entities
+				* @param {string} contentHtml - The raw HTML content
+				* @returns {string} The cleaned content
+		*/
+
+        function cleanContent(contentHtml) {
+            var div = document.createElement("div");
+            div.innerHTML = contentHtml;
+            var content = div.textContent || div.innerText || "";
+
+            return content
+                .replace(/<img[^>]*>/g, "")
+                .replace(/ style="[^\"]*"/g, "")
+                .replace(/<br[^>]*>/g, " ")
+                .replace(/&nbsp;|\u200B/g, "")
+                .replace(/(&#160;+?)\1+/g, "")
+                .replace(/<p[^>]*><\/p[^>]*>/g, "")
+                .replace(/<strong>(?=[a-zA-Z])/g, "<strong> ");
+        }
+    </script>
+
+<!-- Main container for the hero component -->
+	<div width=100% class="ms-WPBody noindex">
+		<div class="Hero AEWebpart">
+		
+			<!-- Tile 1: Main headline (66% width) -->
+			<div class="News Hero Tile1" style=position:relative;width:60%;height:299px;float:left>
+				<div class="Tile Hero" title="Result1" style="background-color:silver;position:relative;height:100%;width:100%;color:white;background-image:url('/SiteAssets/HeroImages/HUB%20Background%201.jpg');background-size:cover;cursor:pointer">
+					<div class=Newstext style=font-size:32px;font-weight:100;position:absolute;left:0;right:0;top:0;padding:15px;color:white id="headline1"></div>
+				</div>
+			</div>
+			
+			  <!-- Tiles 2-5: Secondary headlines (25% width each) -->
+			<div class="News Hero Tile2" style=position:relative;width:20%;height:152px;float:left>
+				<div class="Tile Hero" title="Result2" style="background-color:silver;position:relative;height:147px;color:white;background-image:url('/SiteAssets/HeroImages/HUB%20Background%202.jpg');background-size:cover;cursor:pointer;margin-left:3px">
+					<div class=Newstext style=font-size:17px;font-weight:100;position:absolute;left:0;right:0;top:0;padding:15px;color:white id="headline2"></div>
+				</div>
+			</div>
+			<div class="News Hero Tile3" style=position:relative;width:20%;height:152px;float:left>
+				<div class="Tile Hero" title="Result3" style="background-color:silver;position:relative;height:147px;color:white;background-image:url('/SiteAssets/HeroImages/HUB%20Background%203.jpg');background-size:cover;cursor:pointer;margin-left:3px">
+					<div class=Newstext style=font-size:17px;font-weight:100;position:absolute;left:0;right:0;top:0;padding:15px;color:white id="headline3"></div>
+				</div>
+			</div>
+			<div class="News Hero Tile4" style=position:relative;width:20%;height:152px;float:left>
+				<div class="Tile Hero" title="Result4" style="background-color:silver;position:relative;height:147px;color:white;background-image:url('/SiteAssets/HeroImages/HUB%20Background%204.jpg');background-size:cover;cursor:pointer;margin-left:3px">
+					<div class=Newstext style=font-size:17px;font-weight:100;position:absolute;left:0;right:0;top:0;padding:15px;color:white id="headline4"></div>
+				</div>
+			</div>
+			<div class="News Hero Tile5" style=position:relative;width:20%;height:152px;float:left>
+				<div class="Tile Hero" title="Result5" style="background-color:silver;position:relative;height:147px;color:white;background-image:url('/SiteAssets/HeroImages/HUB%20Background%205.jpg');background-size:cover;cursor:pointer;margin-left:3px">
+					<div class=Newstext style=font-size:17px;font-weight:100;position:absolute;left:0;right:0;top:0;padding:15px;color:white id="headline5"></div>
+				</div>
+			</div>
+			
+			<!-- Additional styles for the hero component -->
+			<style class=sf-hidden>.Tile1 .Newstext{font-weight:bold!important;font-size:32px!important;padding:40px!important}.Hero{transition:opacity 0.2s ease-in-out}.Hero:hover{opacity:0.9}.Newseditbutton:hover span{visibility:visible!important;cursor:pointer}@media screen and (max-width:800px){.News{margin:0!important}}
+			</style>
+		</div>
+		<div class=ms-clear>
+		</div>
+	</div>
+	<div class=ms-PartSpacingVertical>
+	</div>
+
+<!-- End New Code -->
